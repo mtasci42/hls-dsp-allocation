@@ -1,0 +1,46 @@
+cff-version: 1.2.0
+message: "If you use this software or data, please cite the paper below."
+title: "DSP Allocation in Quantized CNN Accelerators: HLS Estimates Against Synthesized Netlists"
+abstract: >-
+  Source, data and board measurements for a study of how high-level synthesis
+  resource estimates relate to the circuit that logic synthesis builds. A compact
+  1-D CNN for cross-load bearing-fault diagnosis is quantized to five weight and
+  activation configurations, carried through a pure-integer golden reference into
+  Vitis HLS, and implemented bit-exactly on a Zynq-7020.
+type: software
+authors:
+  - family-names: "Taşcı"
+    given-names: "Mustafa"
+    orcid: "https://orcid.org/0000-0002-8073-8587"
+    affiliation: "Bandırma Onyedi Eylül University, Gönen Vocational School"
+  - family-names: "Akkaya"
+    given-names: "Ahmet"
+    orcid: "https://orcid.org/0000-0003-4836-2310"
+    affiliation: "Bandırma Onyedi Eylül University, Gönen Vocational School"
+license: MIT
+version: "1.0.0"
+date-released: "2026-09-12"
+repository-code: "https://github.com/[USER]/[REPO]"
+keywords:
+  - quantization
+  - high-level synthesis
+  - FPGA
+  - DSP resources
+  - ternary neural networks
+  - edge inference
+  - power measurement
+  - Zynq
+
+preferred-citation:
+  type: article
+  title: "DSP Allocation in Quantized CNN Accelerators: HLS Estimates Against Synthesized Netlists"
+  authors:
+    - family-names: "Taşcı"
+      given-names: "Mustafa"
+      orcid: "https://orcid.org/0000-0002-8073-8587"
+    - family-names: "Akkaya"
+      given-names: "Ahmet"
+      orcid: "https://orcid.org/0000-0003-4836-2310"
+  journal: "IEEE Embedded Systems Letters"
+  year: 2026
+  # doi, volume, issue and pages to be filled in on acceptance
