@@ -25,7 +25,7 @@ reference on all 1534 test windows.
 
 ## Measurement setup
 
-![Setup](figures/fig_setup.jpg)
+![Setup](figures/fig_setup.png)
 
 The board is powered through a FNIRSI FNB58 analyser on the 5 V rail, logging at
 10 samples/s. Three states are recorded and reported as paired differences:
