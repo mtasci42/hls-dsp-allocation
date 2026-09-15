@@ -1,0 +1,54 @@
+# Environment
+# Repository: hls-dsp-allocation
+# Paper: DSP Allocation in Quantized CNN Accelerators:
+#        HLS Estimates Against Synthesized Netlists (IEEE Embedded Systems Letters)
+
+# ----------------------------------------------------------------------
+# Hardware
+# ----------------------------------------------------------------------
+Board                     Digilent PYNQ-Z1
+Device                    xc7z020clg400-1 (Zynq-7000 SoC)
+Fabric clock              50 MHz (20 ns), FCLK_CLK0
+PS interfaces             M_AXI_GP0 (AXI-Lite control), S_AXI_HP0 (AXI master data)
+Power analyser            FNIRSI FNB58, 5 V USB rail, 10 samples/s
+Board power jumper        JP5 = USB
+
+# ----------------------------------------------------------------------
+# Hardware toolchain
+# ----------------------------------------------------------------------
+Vitis HLS                 2024.1
+Vivado                    2024.1
+Flow target               vivado
+Synthesis mode            in-context (block design); out-of-context for the
+                          50/100 MHz clock sweep in hls/sweep_synth.tcl
+PYNQ image                v__FILL_ME__          # cat /etc/os-release on the board
+Board Python              __FILL_ME__          # python3 --version on the board
+
+# ----------------------------------------------------------------------
+# Training environment  (Google Colab / local)
+# ----------------------------------------------------------------------
+Python                    __FILL_ME__
+tensorflow                __FILL_ME__
+numpy                     __FILL_ME__
+scipy                     __FILL_ME__
+scikit-learn              __FILL_ME__
+pandas                    __FILL_ME__
+matplotlib                __FILL_ME__
+Pillow                    __FILL_ME__
+
+Determinism               TF_DETERMINISTIC_OPS=1, PYTHONHASHSEED=42,
+                          tf.config.experimental.enable_op_determinism()
+Seeds                     42, 1, 7
+Float model               trained once, saved, reloaded for every quantization
+                          configuration so all results share an initialization
+
+# ----------------------------------------------------------------------
+# Dataset
+# ----------------------------------------------------------------------
+Source                    Case Western Reserve University Bearing Data Center,
+                          drive-end accelerometer, 12 kHz
+Mirror used               github.com/srigas/CWRU_Bearing_NumPy
+Redistributed here        no; notebooks/01_train_and_export.ipynb downloads it
+Window / hop              2048 / 1024 samples, per-window standardization
+Split                     leave-one-load-out: train 1,2 HP · val 0 HP · test 3 HP
+                          3058 / 1295 / 1534 windows
