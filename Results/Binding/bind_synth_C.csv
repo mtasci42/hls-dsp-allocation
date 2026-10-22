@@ -1,0 +1,7 @@
+config,bind,DSP_built,LUT_built,FF_built,WNS,DSP_cells,DSP_conv2,DSP_conv2_macmuladd,DSP_conv2_mul,DSP_conv2_otherdsp,status,note
+C_W4_A8,default,9,14044,10109,10.224,9,1,1,0,0,OK,
+C_W4_A8,dsp,146,9449,5905,9.397,146,135,68,67,0,OK,
+C_W4_A8,fabric,0,16079,5961,8.441,0,0,0,0,0,OK,
+C_W8_A8,default,178,9494,4770,9.397,178,170,94,66,10,OK,
+C_W8_A8,dsp,181,9248,4690,9.397,181,170,94,66,10,OK,
+C_W8_A8,fabric,0,22695,7783,9.318,0,0,0,0,0,OK,
