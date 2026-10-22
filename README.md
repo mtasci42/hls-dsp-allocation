@@ -1,17 +1,26 @@
-# DSP Allocation in Quantized CNN Accelerators: HLS Estimates Against Synthesized Netlists
+# DSP Allocation in Quantized CNN Accelerators: HLS Estimates, Binding Directives and Synthesized Netlists
 
-Source, data and measurements for the IEEE Embedded Systems Letters submission by
-M. Tasci and A. Akkaya, Bandirma Onyedi Eylul University.
+Source, data and measurements for the IEEE Embedded Systems Letters manuscript
+IEEE-ESL-Sep-26-0748 (revised version) by M. Tasci and A. Akkaya, Bandirma Onyedi
+Eylul University.
 
 A compact 1-D CNN for cross-load bearing-fault diagnosis is quantized to five weight
 and activation configurations, carried through a pure-integer golden reference into
 Vitis HLS, and implemented on a Zynq-7020 (PYNQ-Z1). Every configuration reproduces
 the golden output bit-exactly on the board over the full test set.
 
-The finding: **the DSP count reported by HLS does not describe the circuit that logic
-synthesis subsequently builds.** HLS reports 59 and 55 DSP blocks for eight-bit and
-four-bit weights; synthesis builds 89 and 9. The estimate errs in both directions, and
-the divergence follows the weight operand alone.
+The findings:
+
+- **Under the default binding, the HLS DSP estimate errs in both directions.** HLS
+  reports 59 and 55 DSP blocks for eight-bit and four-bit weights; the implemented
+  designs use 89 and 9. `auto` multiplications are counted as zero DSP, and `dsp_slice`
+  multiplications are emitted as a behavioural template that does not constrain synthesis.
+- **The default flow has a sharp threshold between five-bit and four-bit weights**
+  (eight-bit activations), which the estimate does not register. A network with twice
+  the multiplier array repeats the pattern.
+- **Explicit binding largely removes the discrepancy.** With `config_op mul -impl fabric`
+  estimate and netlist agree; with `-impl dsp` the error falls from up to 93 to at most
+  26 blocks, and the DSP saving of four-bit weights from about 90% to 19-29%.
 
 ---
 
@@ -29,8 +38,12 @@ weights throughout. Configuration names therefore refer to the second convolutio
 | `A_int4_A4` | int4 | 4 bit | 15 bit | 54 | 8 |
 | `W_ternary_A8` | ternary | 8 bit | 16 bit | 9 | 9 |
 
+DSP (built) is the implemented design with the AXI wrapper (Table I of the paper).
 `W_int4_A8` and `A_int8_A4` are the controlled pair: identical accumulators, opposite
 narrowed operands, and 9 against 88 DSP blocks.
+
+Weights are declared as `int8_t` in every `weights.h`; HLS infers the narrower
+multiplier widths from the value range of each constant weight array.
 
 ---
 
@@ -75,6 +88,11 @@ paper.
 | Measured active power, three repeats | `Results/Power/`, parsed by `Notebooks/parse_power.py` |
 | Timing closure of the implemented designs | `Vivado/wns.tcl`, run against the projects |
 | macro-F1 over three seeds, and the clipped-float baseline | `Notebooks/01_train_and_export.ipynb`, Section 6.3 |
+| Binding split and DSP under default / DSP-bound / fabric-bound modes (Table II) | `Results/Binding/bind_experiment.csv` (HLS), `bind_synth.csv` (out-of-context synthesis) |
+| Weight-width sweep, 8 to 2 bits (Fig. 2) | `Results/Binding/bind_B.csv`, `bind_synth_B.csv`, plotted by `Notebooks/make_fig_sweep.py` |
+| Wider network, 160 conv2 products (Table II, last rows) | `Results/Binding/bind_C.csv`, `bind_synth_C.csv` |
+| HLS operand widths per configuration (e.g. `8ns*4s=79; 8ns*3s=1`) | `conv2_operands` column of `Results/Binding/bind_*.csv` |
+| DSP-bound RTL adds `use_dsp` only to `auto` multiplications | `rtl_use_dsp_hits` column; regenerate with `HLS/binding/bind_experiment.tcl` |
 
 ---
 
@@ -85,7 +103,8 @@ hls-dsp-allocation/
 ├── Notebooks/
 │   ├── 01_train_and_export.ipynb   training, golden reference, HLS artifact generation
 │   ├── 02_pynq_measure.ipynb       board verification, latency, power loop
-│   └── parse_power.py              reproduces the power table from the raw logs
+│   ├── parse_power.py              reproduces the power table from the raw logs
+│   └── make_fig_sweep.py           Fig. 2 from Results/Binding/
 ├── HLS/
 │   ├── cnn.cpp  cnn.h              single kernel source, serves all five precisions
 │   ├── cnn_hw.cpp                  AXI master and AXI-Lite wrapper for deployment
@@ -93,6 +112,11 @@ hls-dsp-allocation/
 │   ├── run.tcl  hw.tcl             per-configuration synthesis and IP export
 │   ├── run_all.tcl  parse_all.tcl  batch synthesis and report collection
 │   ├── sweep_synth.tcl             out-of-context sweep at 20 ns and 10 ns
+│   ├── directives.tcl              shared directive set used by the binding experiments
+│   ├── binding/
+│   │   ├── bind_experiment.tcl     csynth under default / dsp / fabric binding
+│   │   ├── bind_synth.tcl          out-of-context synthesis of each binding mode's RTL
+│   │   └── gen_variants.py         weight-width sweep and wider-network variants
 │   ├── W_int8_A8/                  weights.h and test_data.h for this configuration
 │   ├── W_int4_A8/
 │   ├── A_int8_A4/
@@ -108,7 +132,8 @@ hls-dsp-allocation/
 │   ├── Power/                      31 raw FNB58 logs
 │   ├── harvest.csv                 DSP, LUT, FF and BRAM after synthesis and implementation
 │   ├── dsp_hier.csv                DSP cells attributed to conv1, conv2 and dense
-│   └── sweep_synth.csv             resources and slack at 20 ns and 10 ns
+│   ├── sweep_synth.csv             resources and slack at 20 ns and 10 ns
+│   └── Binding/                    binding experiment, weight sweep and wider network
 ├── figures/
 ├── CITATION.cff   LICENSE   README.md
 └── environment.txt   requirements.txt
@@ -183,6 +208,35 @@ python Notebooks/parse_power.py --dir Results/Power
 Prints the floor, the per-configuration `P_B`, `P_C`, `P_B - P_A` and `P_act`, the
 within-window uncertainty, and the Welch statistics for the ternary comparison.
 
+### 6. Binding experiments, weight-width sweep and wider network
+
+Synthesis only; no board measurement and no accuracy claim for the sweep and the wider
+network, whose weights are derived rather than trained. From `HLS/`, with `cnn.cpp` and
+`cnn.h` copied into each configuration folder as in step 2:
+
+```bash
+# five configurations x {default, dsp, fabric}: csynth, then out-of-context synthesis
+vitis_hls -f binding/bind_experiment.tcl
+vivado -mode batch -source binding/bind_synth.tcl -nojournal -nolog
+
+# weight-width sweep (B_W8_A8 ... B_W2_A8) and wider network (C_W8_A8, C_W4_A8)
+python binding/gen_variants.py sweep
+python binding/gen_variants.py arch
+BIND_CSV=bind_B.csv vitis_hls -f binding/bind_experiment.tcl -tclargs 'B_W*'
+BIND_CSV=bind_C.csv vitis_hls -f binding/bind_experiment.tcl -tclargs 'C_W*'
+BIND_SYNTH_CSV=bind_synth_B.csv vivado -mode batch -source binding/bind_synth.tcl -nojournal -nolog -tclargs 'B_W*'
+BIND_SYNTH_CSV=bind_synth_C.csv vivado -mode batch -source binding/bind_synth.tcl -nojournal -nolog -tclargs 'C_W*'
+
+# Fig. 2, from the repository root
+python Notebooks/make_fig_sweep.py
+```
+
+On Windows set the environment variables with `set BIND_CSV=bind_B.csv` first. The binding
+modes use `config_op mul -impl dsp|fabric` with all other directives unchanged. Out-of-context
+counts refer to the HLS core without the AXI wrapper and therefore differ from the
+implemented designs. One csynth run took 31-50 s and one out-of-context synthesis
+1.4-3.8 min on our workstation.
+
 ---
 
 ## Environment
@@ -197,7 +251,7 @@ within-window uncertainty, and the Welch statistics for the ternary comparison.
 | Power analyser | FNIRSI FNB58, 10 samples/s, 5 V rail |
 
 Full manifest in `environment.txt`, Python packages in `requirements.txt`. Seeds are
-42, 1 and 7; the float model is trained once and reloaded for every configuration, so
+42, 1 and 7, and the median seed of each configuration is the one synthesized and deployed; the float model is trained once and reloaded for every configuration, so
 all results share an initialization.
 
 ## Not included

@@ -1,0 +1,7 @@
+config,bind,DSP_hls,LUT_hls,FF_hls,conv2_DSP_hls,mul_total,mul_dsp_slice,mul_auto,rtl_dir,status,top,mul_fabric,mul_other,conv2_rpt,conv2_mul_total,conv2_mul_dsp_slice,conv2_mul_auto,rtl_files,rtl_use_dsp_hits,rtl_dsp48_hits,mul_dsp,conv2_mul_dsp,conv2_mul_fabric,conv2_mul_other,conv2_operands,note
+C_W4_A8,default,102,14426,5970,94,171,100,71,HLS/C_W4_A8/bind_default/sol1/syn/verilog,OK,cnn_core,0,0,csynth.rpt,161,94,67,204,5,29,0,0,0,0,15s*20s=1;8ns*4s=160,
+C_W4_A8,dsp,172,11577,5970,161,171,100,0,HLS/C_W4_A8/bind_dsp/sol1/syn/verilog,OK,cnn_core,0,0,csynth.rpt,161,94,0,204,8,29,71,67,0,0,15s*20s=1;8ns*4s=160,
+C_W4_A8,fabric,0,25457,5326,0,171,0,0,HLS/C_W4_A8/bind_fabric/sol1/syn/verilog,OK,cnn_core,171,0,csynth.rpt,161,0,0,195,6,0,0,0,161,0,20s*16ns=1;8ns*4s=160,
+C_W8_A8,default,102,15474,7339,94,171,100,71,HLS/C_W8_A8/bind_default/sol1/syn/verilog,OK,cnn_core,0,0,csynth.rpt,161,94,67,207,5,33,0,0,0,0,19s*24s=1;8ns*8s=155;8s*8ns=5,
+C_W8_A8,dsp,172,12625,7339,161,171,100,0,HLS/C_W8_A8/bind_dsp/sol1/syn/verilog,OK,cnn_core,0,0,csynth.rpt,161,94,0,207,9,33,71,67,0,0,19s*24s=1;8ns*8s=155;8s*8ns=5,
+C_W8_A8,fabric,0,27555,7149,0,171,0,0,HLS/C_W8_A8/bind_fabric/sol1/syn/verilog,OK,cnn_core,171,0,csynth.rpt,161,0,0,196,7,0,0,0,161,0,24s*16ns=1;8ns*8s=155;8s*8ns=5,

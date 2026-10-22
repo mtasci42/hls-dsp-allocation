@@ -1,0 +1,24 @@
+# Vitis HLS / Vivado project and run directories
+**/proj_*/
+**/hw_*/
+**/bind_*/
+*.jou
+*.log
+*.str
+.Xil/
+vivado*.backup.*
+bind_dump/
+
+# generated synthesis-only variants (regenerate with HLS/binding/gen_variants.py)
+HLS/B_W*_A8/
+HLS/C_W*_A8/
+
+# Python / notebooks
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
